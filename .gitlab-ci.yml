@@ -1,0 +1,22 @@
+image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/python:3.11
+
+stages:
+  - test
+
+test:
+  stage: test
+  tags:
+    - docker
+  artifacts:
+    when: always
+    paths:
+      - ./allure-results
+    expire_in: 1 day
+  before_script:
+    - pip3 install -r requirements.txt
+    - playwright install
+  script:
+    - echo "Run automated tests"
+    - pytest -s -vv --color=yes --alluredir=allure-results
+
+# Pipeline Schedules: use Gitlab UI to avoid hardcoded data (0 8 * * *)

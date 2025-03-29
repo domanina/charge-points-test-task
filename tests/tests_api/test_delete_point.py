@@ -1,7 +1,7 @@
 import allure
 from http import HTTPStatus
 import pytest
-from assertpy import assert_that
+from assertpy import assert_that, soft_assertions
 
 from helpers.api_helper import check_status_code
 from helpers.common_helper import generate_random_string, generate_uuid4
@@ -24,11 +24,12 @@ class TestDeletePoints:
             check_status_code(response, HTTPStatus.NO_CONTENT)
         with allure.step("Via get request make sure point is deleted"):
             response = charge_point_api_client.get_point()
-            check_status_code(response, HTTPStatus.OK)
-            assert_charge_point_in_list(points_list=response.json(),
-                                        expected_point=charge_point.model_dump(by_alias=True, exclude_none=True),
-                                        should_exist=False
-                                        )
+            with soft_assertions():
+                check_status_code(response, HTTPStatus.OK)
+                assert_charge_point_in_list(points_list=response.json(),
+                                            expected_point=charge_point.model_dump(by_alias=True, exclude_none=True),
+                                            should_exist=False
+                                            )
 
     @allure.title("Delete point with the same serial number")
     @pytest.mark.smoke
@@ -42,13 +43,14 @@ class TestDeletePoints:
             check_status_code(response, HTTPStatus.NO_CONTENT)
         with allure.step("Via get request make sure first point is deleted, second point is in the list"):
             response = charge_point_api_client.get_point()
-            check_status_code(response, HTTPStatus.OK)
-            assert_charge_point_in_list(points_list=response.json(),
-                                        expected_point=first_point.model_dump(by_alias=True, exclude_none=True),
-                                        should_exist=False
-                                        )
-            assert_charge_point_in_list(points_list=response.json(),
-                                        expected_point=second_point.model_dump(by_alias=True, exclude_none=True),
+            with soft_assertions():
+                check_status_code(response, HTTPStatus.OK)
+                assert_charge_point_in_list(points_list=response.json(),
+                                            expected_point=first_point.model_dump(by_alias=True, exclude_none=True),
+                                            should_exist=False
+                                            )
+                assert_charge_point_in_list(points_list=response.json(),
+                                            expected_point=second_point.model_dump(by_alias=True, exclude_none=True),
                                         )
 
     @allure.title("Delete deleted charge point")
@@ -58,25 +60,29 @@ class TestDeletePoints:
             charge_point_api_client.delete_point(charge_point_id=charge_point.id)
         with allure.step("Delete deleted point"):
             response = charge_point_api_client.delete_point(charge_point_id=charge_point.id)
-            check_status_code(response, HTTPStatus.NOT_FOUND)
-            assert_that(response.json()["message"]).is_equal_to("point not found")
+            with soft_assertions():
+                check_status_code(response, HTTPStatus.NOT_FOUND)
+                assert_that(response.json()["message"]).is_equal_to("point not found")
 
     @allure.title("Delete not exist charge point")
     def test_delete_not_exist_charge_point(self, charge_point_api_client):
         response = charge_point_api_client.delete_point(charge_point_id=generate_uuid4())
-        check_status_code(response, HTTPStatus.NOT_FOUND)
-        assert_that(response.json()["message"]).is_equal_to("point not found")
+        with soft_assertions():
+            check_status_code(response, HTTPStatus.NOT_FOUND)
+            assert_that(response.json()["message"]).is_equal_to("point not found")
 
     @allure.title("Delete charge point with not correct ID")
     @pytest.mark.negative
     def test_delete_charge_point_not_correct_id(self, charge_point_api_client):
         response = charge_point_api_client.delete_point(charge_point_id=generate_random_string())
-        check_status_code(response, HTTPStatus.BAD_REQUEST)
-        assert_that(response.json()["message"]).is_equal_to("invalid id format")
+        with soft_assertions():
+            check_status_code(response, HTTPStatus.BAD_REQUEST)
+            assert_that(response.json()["message"]).is_equal_to("invalid id format")
 
     @allure.title("Delete charge point without ID")
     @pytest.mark.negative
     def test_delete_charge_point_without_id(self, charge_point_api_client):
         response = charge_point_api_client.delete_point()
-        check_status_code(response, HTTPStatus.BAD_REQUEST)
-        assert_that(response.json()["message"]).is_equal_to("invalid id format")
+        with soft_assertions():
+            check_status_code(response, HTTPStatus.BAD_REQUEST)
+            assert_that(response.json()["message"]).is_equal_to("invalid id format")

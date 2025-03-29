@@ -1,6 +1,7 @@
 import json
 from http import HTTPStatus
 import allure
+from assertpy import assert_that
 from requests import Response
 
 from consts.consts import Colors
@@ -23,9 +24,7 @@ def check_status_code(response: Response, expected_status_code: int):
         pass
     with allure.step(f"Actual status code: {response.status_code}"):
         pass
-    assert response.status_code == expected_status_code, \
-            (f"Test failed. HTTP status is : {response.status_code},({response.text}), "
-             f"expected  HTTP status: {expected_status_code}")
+    assert_that(response.status_code, "HTTP status").is_equal_to(expected_status_code)
 
 
 def pretty_log_request(response: Response, method: str, **kwargs):

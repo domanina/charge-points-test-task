@@ -18,7 +18,7 @@ def add_new_charge_point(page, sn_length: int = 20):
 
 
 @allure.step("Check existence of point in DB via get request")
-def find_point_get_request(charge_point_api_client, point_serial_number: str, should_contain=True):
+def assert_charge_point_in_get_response(charge_point_api_client, point_serial_number: str, should_contain=True):
     response = charge_point_api_client.get_point()
     serial_numbers = [point["serialNumber"] for point in response.json()]
     if should_contain:

@@ -46,6 +46,7 @@ class ApiClient:
             return response
         except requests.RequestException as e:
             logger.exception(f"\n{Colors.RED.value}Request to '{path}' failed: {e}{Colors.BLACK.value}")
+            raise Exception(f"Request failed to {path} with error: {e}")
 
     def _get(self, path: str, api_key: Optional[str] = None, params: Optional[Dict[str, Any]] = None, **kwargs):
         """

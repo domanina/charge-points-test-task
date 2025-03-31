@@ -5,6 +5,7 @@ from playwright.sync_api import sync_playwright
 from api.charge_point_api.charge_point_api import ChargePointApi
 from config.config_local import RUN_BROWSER, SRVC_URL_UI
 from logger.logger import get_logger
+from ui.pages.point_list_page import ChargePointPage
 
 logger = get_logger(__name__)
 
@@ -55,3 +56,8 @@ def main_page(new_context):
         page.goto(SRVC_URL_UI)
     yield page
     page.close()
+
+
+@pytest.fixture(scope="function")
+def charge_point_page(main_page):
+    yield ChargePointPage(main_page)
